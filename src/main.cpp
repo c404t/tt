@@ -1,24 +1,34 @@
 #include <stdlib.h>
 #include <cstring>
+#include <string>
 #include <iostream>
 
 int main(int argc, char* argv[])
 {
     if (argc < 2)
     {
-        std::cout << "Usage: tt [command] <arguments>" << std::endl;
+        std::cerr << "Usage: tt [command] <arguments>" << std::endl;
         return -1;
     }
     else 
     {
         if (strcmp(argv[1], "add") == 0)
         {
-            system("ls -l");
+            if (argc < 3)
+            {
+                system("./add");
+            }
+            else 
+            {
+                std::string task = argv[2];
+                std::string send = "./add \"" + task + "\"";
+                system(send.c_str());
+            }
         }
         else 
         {
-            std::cout << "Invalid command. " << std::endl;
-            std::cout << "Try 'tt --help' for more information." << std::endl;
+            std::cerr << "Invalid command. " << std::endl;
+            std::cerr << "Try 'tt --help' for more information." << std::endl;
             return -1;
         }
     }
