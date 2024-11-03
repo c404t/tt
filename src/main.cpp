@@ -1,7 +1,23 @@
 #include <stdlib.h>
 #include <cstring>
 #include <string>
+#include <fmt/format.h>
 #include <iostream>
+
+void command(std::string cmd, int argc, char* argv[])
+{
+    if (argc < 3)
+    {
+        std::string command = cmd;
+        system(command.c_str());
+    }
+    else
+    {
+        std::string task = argv[2];
+        std::string send = fmt::format("./{} {}", cmd, task);
+        system(send.c_str());
+    }
+}
 
 int main(int argc, char* argv[])
 {
@@ -14,16 +30,7 @@ int main(int argc, char* argv[])
     {
         if (strcmp(argv[1], "add") == 0)
         {
-            if (argc < 3)
-            {
-                system("./add");
-            }
-            else 
-            {
-                std::string task = argv[2];
-                std::string send = "./add \"" + task + "\"";
-                system(send.c_str());
-            }
+            command("add", argc, argv);
         }
         else 
         {
