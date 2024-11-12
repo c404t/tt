@@ -8,7 +8,7 @@ void command(std::string cmd, int argc, char* argv[])
 {
     if (argc < 3)
     {
-        std::string command = cmd;
+        std::string command = fmt::format("./{}", cmd);
         system(command.c_str());
     }
     else
