@@ -2,35 +2,57 @@
 #include <cstring>
 #include <string>
 #include <fmt/format.h>
+#include <nlohmann/json.hpp>
 #include <iostream>
 
-void command(std::string cmd, int argc, char* argv[])
+void
+show_help()
 {
-    if (argc < 3)
+    std::cout << "tt | command line tasktracker"              << std::endl << std::endl
+              << "tt add \"new task\""                        << std::endl
+              << "tt update <task id> \"redefine task\""      << std::endl
+              << "tt remove <task id>"                        << std::endl << std::endl
+              << "tt done <task id>"                          << std::endl
+              << "tt wip <task id>"                           << std::endl
+              << "tt list [wip | done | notdone]"             << std::endl
+              ;
+}
+
+void 
+add(char* argv[]) 
+{
+    std::cout << "good to go!" << std::endl;
+    std::cout << argv[2] << std::endl;
+}
+
+bool
+is_command(std::string cmd, char* argv[])
+{
+    if(strcmp(argv[1], cmd.c_str()) == 0)
     {
-        std::string command = fmt::format("./{}", cmd);
-        system(command.c_str());
+        return true;
     }
     else
     {
-        std::string task = argv[2];
-        std::string send = fmt::format("./{} {}", cmd, task);
-        system(send.c_str());
+        return false;
     }
+
 }
 
-int main(int argc, char* argv[])
+int 
+main(int argc, char* argv[])
 {
-    if (argc < 2)
+    if (argc < 3)
     {
         std::cerr << "Usage: tt [command] <arguments>" << std::endl;
+        std::cerr << "Try 'tt --help' for more information." << std::endl;
         return -1;
     }
     else 
     {
-        if (strcmp(argv[1], "add") == 0)
+        if(is_command("add", argv))
         {
-            command("add", argc, argv);
+            add(argv);
         }
         else 
         {
