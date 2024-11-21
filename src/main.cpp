@@ -11,7 +11,8 @@ using std::cin;
 using std::cerr;
 using std::endl;
 
-using std::fstream;
+using std::ofstream;
+using std::ifstream;
 
 using std::exception;
 using std::string;
@@ -46,7 +47,6 @@ main(int argc, char* argv[])
         usage(argv[0]);
         return -1;
     }
-
     std::unordered_set<string> commands =
     {
         "add",
@@ -74,15 +74,35 @@ main(int argc, char* argv[])
         {
             if(argc == 3) 
             {
-                fstream file;
+                json data;
+                ifstream read_file;
+                read_file.open(path);
 
-                file.open(path, 
-                        std::ios_base::in |
-                        std::ios_base::out | 
-                        std::ios_base::app);
+                if(read_file)
+                {
+                    try
+                    {
+                        data = json::parse(read_file); 
+                    }
+                    catch(const exception& e)
+                    {
 
-                json data = json::parse(file);
-                
+                        cout << "Error parsing data at: " 
+                            << path << endl;
+
+                        return -1;
+                    }
+                }
+                else 
+                {
+                    cerr << "Unable to open tasks data at " 
+                        << path << endl;
+
+                    return -1;
+                }
+
+                cout << data["tasks"];
+
                 json new_task;
                 new_task["id"] = 3;
                 new_task["description"] = string(argv[2]);
@@ -90,29 +110,52 @@ main(int argc, char* argv[])
                 new_task["created"] = "";
                 new_task["updated"] = "";
 
-                if(file.is_open())
+
+                ofstream write_file;
+                write_file.open(path, ofstream::trunc);
+
+                if(write_file)
                 {
-                    try
+                    if(!data["tasks"].is_null())
                     {
-                        file << data["tasks"].emplace_back(new_task); 
-                        file << data.dump(4);
-                        file.close();
-                        cout << "New task was added successfully!" << endl;
+                        try
+                        {
+                            data["tasks"].push_back(new_task); 
+                            write_file << data.dump(4);
+                            write_file.close();
+                            cout << "New task was added successfully!" << endl;
+                        }
+                        catch (const exception& e)
+                        {
+                            cerr << "Error writting data to: "
+                                << path << endl;
+                            cerr << e.what() << endl;
+
+                            return -1;
+                        }
                     }
-                    catch (const exception& e)
+                    else
                     {
-                        cout << "Error writting data to: "
-                            << path << endl;
-                        cout << e.what() << endl;
+                        cerr << "There was something wrong with tasks data. " << endl 
+                            << "You can either try correcting the file at "
+                            << path
+                            << " (not recommended) " << endl
+                            << "or regenerating tasks data using "
+                            << argv[0]
+                            << " reset";
+
+                        return -1;
                     }
                 }
                 else
                 {
                     cerr << "Unable to open tasks data at " 
                         << path << endl;
+
                     return -1;
                 }
             }
+        
             else
             {
                 cerr << "add takes exactly one argument but "
@@ -125,7 +168,7 @@ main(int argc, char* argv[])
     }
     else
     {
-        cout << "Error: Invalid command." << endl;
+        cerr << "Error: Invalid command." << endl;
         usage(argv[0]);
         return -1;
     }
