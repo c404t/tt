@@ -1,37 +1,27 @@
 {
     "tasks": [
         {
-            "created": "",
-            "description": "",
-            "id": 1,
-            "status": "",
-            "updated": ""
-        },
-        {
-            "created": "",
-            "description": "",
+            "created": "Sun Nov 24 15:15:42 2024\n",
+            "description": "feed the cat",
             "id": 2,
-            "status": "",
+            "status": "todo",
             "updated": ""
         },
         {
-            "created": "",
-            "description": "new tasksksksk",
+            "created": "Mon Nov 25 20:09:25 2024",
+            "description": "ahmagh",
+            "id": 2,
+            "status": "todo",
+            "updated": ""
+        },
+        {
+            "created": "Mon Nov 25 20:09:49 2024",
+            "description": "ahmagh",
             "id": 3,
             "status": "todo",
             "updated": ""
         },
         {
-            "created": "",
-            "description": "newerrrr",
-            "id": 3,
-            "status": "todo",
-            "updated": ""
-        },
-        {
-            "created": "",
-            "description": "meh",
-            "id": 3,
             "status": "todo",
             "updated": ""
         }

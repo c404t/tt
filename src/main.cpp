@@ -3,6 +3,9 @@
 #include <cstdlib>
 #include <string>
 #include <unordered_set>
+#include <ctime>
+#include <sstream>
+#include <vector>
 
 #include <nlohmann/json.hpp>
 
@@ -10,9 +13,12 @@ using std::cout;
 using std::cin;
 using std::cerr;
 using std::endl;
+using std::count;
 
 using std::ofstream;
 using std::ifstream;
+using std::istringstream;
+using std::vector;
 
 using std::exception;
 using std::string;
@@ -21,8 +27,7 @@ using std::setw;
 
 using nlohmann::json;
 
-    void
-usage(char* argv)
+void usage(char* argv)
 {
     cout << "Usage: " 
         << "(add | remove | update) <task> " << endl
@@ -31,15 +36,116 @@ usage(char* argv)
         << "       (clear | reset) " << endl;
 }
 
-    string
-home()
+string home()
 {
     char* home = getenv("HOME");
     return home ? string(home) : "";
 }
 
-    int
-main(int argc, char* argv[])
+int add(int argc, char* argv[], const string path, string time)
+{
+    if(argc == 3) 
+    {
+        json data;
+        ifstream read_file;
+        read_file.open(path);
+
+        if(read_file)
+        {
+            try
+            {
+                data = json::parse(read_file); 
+            }
+            catch(const exception& e)
+            {
+                cout << "Error parsing data at: " 
+                    << path << endl;
+
+                return -1;
+            }
+        }
+        else 
+        {
+            cerr << "Unable to open tasks data at " 
+                << path << endl;
+
+            return -1;
+        }
+
+        int new_id = (data["tasks"].size() + 1);
+
+        json new_task;
+        new_task["id"] = new_id;
+        new_task["description"] = string(argv[2]);
+        new_task["status"] = "todo";
+        new_task["created"] = time;
+        new_task["updated"] = "";
+
+        ofstream write_file;
+        write_file.open(path, ofstream::trunc);
+
+        if(write_file)
+        {
+            if(!data["tasks"].is_null())
+            {
+                try
+                {
+                    data["tasks"].push_back(new_task); 
+                    write_file << data.dump(4);
+                    write_file.close();
+                    cout << "New task was added successfully!" << endl
+                        << "Task id: "
+                        << new_id
+                        << " " << endl;
+
+                    return 0;
+                }
+                catch (const exception& e)
+                {
+                    cerr << "Error writting data to: "
+                        << path << endl;
+                    cerr << e.what() << endl;
+
+                    return -1;
+                }
+            }
+            else
+            {
+                cerr << "There was something wrong with tasks data. " << endl 
+                    << "You can either try correcting the file at "
+                    << path
+                    << " (not recommended) " << endl
+                    << "or regenerating tasks data using "
+                    << argv[0]
+                    << " reset";
+
+                return -1;
+            }
+        }
+        else
+        {
+            cerr << "Unable to open tasks data at " 
+                << path << endl;
+
+            return -1;
+        }
+    }
+
+    else
+    {
+        cerr << "add takes exactly one argument but "
+            << (argc - 2)
+            << " was provided." << endl;
+
+        return -1;
+    }
+}
+
+int remove(int argc, char* argv[], const string path)
+{
+}
+
+int main(int argc, char* argv[])
 {
     if(argc < 2)
     {
@@ -68,103 +174,21 @@ main(int argc, char* argv[])
     {
         const string path = home() + "/tasktracker/tasks.json";
 
-        //add
+        time_t timestamp;
+        time(&timestamp);
+        string time = ctime(&timestamp);
+        time.pop_back();
 
         if(string(argv[1]) == "add")
         {
-            if(argc == 3) 
-            {
-                json data;
-                ifstream read_file;
-                read_file.open(path);
-
-                if(read_file)
-                {
-                    try
-                    {
-                        data = json::parse(read_file); 
-                    }
-                    catch(const exception& e)
-                    {
-
-                        cout << "Error parsing data at: " 
-                            << path << endl;
-
-                        return -1;
-                    }
-                }
-                else 
-                {
-                    cerr << "Unable to open tasks data at " 
-                        << path << endl;
-
-                    return -1;
-                }
-
-                cout << data["tasks"];
-
-                json new_task;
-                new_task["id"] = 3;
-                new_task["description"] = string(argv[2]);
-                new_task["status"] = "todo";
-                new_task["created"] = "";
-                new_task["updated"] = "";
-
-
-                ofstream write_file;
-                write_file.open(path, ofstream::trunc);
-
-                if(write_file)
-                {
-                    if(!data["tasks"].is_null())
-                    {
-                        try
-                        {
-                            data["tasks"].push_back(new_task); 
-                            write_file << data.dump(4);
-                            write_file.close();
-                            cout << "New task was added successfully!" << endl;
-                        }
-                        catch (const exception& e)
-                        {
-                            cerr << "Error writting data to: "
-                                << path << endl;
-                            cerr << e.what() << endl;
-
-                            return -1;
-                        }
-                    }
-                    else
-                    {
-                        cerr << "There was something wrong with tasks data. " << endl 
-                            << "You can either try correcting the file at "
-                            << path
-                            << " (not recommended) " << endl
-                            << "or regenerating tasks data using "
-                            << argv[0]
-                            << " reset";
-
-                        return -1;
-                    }
-                }
-                else
-                {
-                    cerr << "Unable to open tasks data at " 
-                        << path << endl;
-
-                    return -1;
-                }
-            }
-        
-            else
-            {
-                cerr << "add takes exactly one argument but "
-                    << (argc - 2)
-                    << " was provided." << endl;
-
-                return -1;
-            }
+            add(argc, argv, path, time);
         }
+        else if(string(argv[1]) == "remove")
+        {
+            remove(argc, argv, path);
+        }
+        else
+        {}
     }
     else
     {
