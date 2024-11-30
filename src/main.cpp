@@ -307,7 +307,7 @@ int remove(int argc, char* argv[], const string path)
     }
 }
 
-int update(int argc, char* argv[], const string path)
+int update(int argc, char* argv[], const string path, string time)
 {
     if(argc == 4) 
     {
@@ -349,6 +349,7 @@ int update(int argc, char* argv[], const string path)
                     {
                         cout << "Updating: "<< task->at("description") << endl;
                         task->at("description") = string(argv[3]);
+                        task->at ("updated") = time;
                         updated = true;
                         cout << "Task was updated successfully!" << endl;
                         break;
@@ -481,7 +482,7 @@ int main(int argc, char* argv[])
         }
         else if(string(argv[1]) == "update")
         {
-            update(argc, argv, path);
+            update(argc, argv, path, time);
         }
         else
         {}
