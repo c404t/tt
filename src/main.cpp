@@ -245,7 +245,7 @@ int remove(int argc, char* argv[], const string path)
 
         if(!removed)
         {
-            cerr << "Could not remove task with provided id!"
+            cerr << "Could not remove task with provided id!" << endl
                 << "The id you provided is likely not a valid id or integer."
                 << endl;
 
@@ -307,6 +307,136 @@ int remove(int argc, char* argv[], const string path)
     }
 }
 
+int update(int argc, char* argv[], const string path)
+{
+    if(argc == 4) 
+    {
+        json data;
+        ifstream read_file;
+        read_file.open(path);
+
+        if(read_file)
+        {
+            try
+            {
+                data = json::parse(read_file); 
+            }
+            catch(const exception& e)
+            {
+                cout << "Error parsing data at: " 
+                    << path << endl;
+
+                return -1;
+            }
+        }
+        else 
+        {
+            cerr << "Unable to open tasks data at " 
+                << path << endl;
+
+            return -1;
+        }
+
+        bool updated = false;
+
+        for(auto task = data["tasks"].begin(); task != data["tasks"].end(); )
+        {
+            if(task->contains("id") && task->at("id") == atoi(argv[2]))
+            {
+                if(task->contains("description"))
+                {
+                    try
+                    {
+                        cout << "Updating: "<< task->at("description") << endl;
+                        task->at("description") = string(argv[3]);
+                        updated = true;
+                        cout << "Task was updated successfully!" << endl;
+                        break;
+                    }
+                    catch(const exception& e)
+                    {
+                        cerr << "Something went wrong!" << endl;
+
+                        return -1;
+                    }
+                }
+                else
+                {
+                    cerr << "There was something wrong with the tasks data" << endl;
+                    
+                    return -1;
+                }
+            }
+            else
+            {
+                ++task;
+            }
+        }
+
+        if(!updated)
+        {
+            cerr << "Could not update task with provided id!" << endl
+                << "The id you provided is likely not a valid id or integer."
+                << endl;
+
+            return -1;
+        }
+
+        ofstream write_file;
+        write_file.open(path, ofstream::trunc);
+
+        if(write_file)
+        {
+            if(!data["tasks"].is_null())
+            {
+                try
+                {
+                    write_file << data.dump(4);
+                    write_file.close();
+
+                    return 0;
+                }
+                catch (const exception& e)
+                {
+                    cerr << "Error writting data to: "
+                        << path << endl;
+                    cerr << e.what() << endl;
+
+                    return -1;
+                }
+            }
+            else
+            {
+                cerr << "There was something wrong with tasks data. " << endl 
+                    << "You can either try correcting the file at "
+                    << path
+                    << " (not recommended) " << endl
+                    << "or regenerating tasks data using "
+                    << argv[0]
+                    << " reset";
+
+                return -1;
+            }
+        }
+        else
+        {
+            cerr << "Unable to open tasks data at " 
+                << path << endl;
+
+            return -1;
+        }
+    }
+
+    else
+    {
+        cerr << "update takes exactly two argument but "
+            << (argc - 2)
+            << " was provided." << endl;
+
+        return -1;
+    }
+}
+
 int main(int argc, char* argv[])
 {
     if(argc < 2)
@@ -319,7 +449,7 @@ int main(int argc, char* argv[])
     {
         "add",      //done
         "remove",   //done
-        "update",
+        "update",   //done
 
         "list",
         "listw",
@@ -348,6 +478,10 @@ int main(int argc, char* argv[])
         else if(string(argv[1]) == "remove")
         {
             remove(argc, argv, path);
+        }
+        else if(string(argv[1]) == "update")
+        {
+            update(argc, argv, path);
         }
         else
         {}
