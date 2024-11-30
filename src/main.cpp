@@ -6,6 +6,7 @@
 #include <ctime>
 #include <sstream>
 #include <vector>
+#include <random>
 
 #include <nlohmann/json.hpp>
 
@@ -19,6 +20,7 @@ using std::ofstream;
 using std::ifstream;
 using std::istringstream;
 using std::vector;
+using std::unordered_set;
 
 using std::exception;
 using std::string;
@@ -40,6 +42,52 @@ string home()
 {
     char* home = getenv("HOME");
     return home ? string(home) : "";
+}
+
+int gen_id(const json& data)
+{
+    if (!data.contains("tasks") || !data["tasks"].is_array())
+    {
+                cerr << "There was something wrong with tasks data. " << endl;
+
+                return -1;
+    }
+
+    unordered_set<int> ids;
+
+    for(const auto& it : data["tasks"])
+    {
+        try
+        {
+            if (it.contains("id") && it["id"].is_number_integer()) 
+            {
+                ids.insert(it["id"].get<int>());
+            } 
+            else 
+            {
+                std::cerr << "Warning: Task element missing 'id' key or 'id' is not an integer." << std::endl;
+            }
+        }
+        catch(const exception& e)
+        {
+            cerr << "Error: " << e.what() << endl;
+
+            return -1;
+        }
+    }
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_int_distribution<> distrib(1000, 9999);
+
+    int id;
+    do
+    {
+        id = distrib(gen);
+    }
+    while(ids.count(id));
+
+    return id;
 }
 
 int add(int argc, char* argv[], const string path, string time)
@@ -72,10 +120,8 @@ int add(int argc, char* argv[], const string path, string time)
             return -1;
         }
 
-        int new_id = (data["tasks"].size() + 1);
-
         json new_task;
-        new_task["id"] = new_id;
+        new_task["id"] = gen_id(data);
         new_task["description"] = string(argv[2]);
         new_task["status"] = "todo";
         new_task["created"] = time;
@@ -95,8 +141,8 @@ int add(int argc, char* argv[], const string path, string time)
                     write_file.close();
                     cout << "New task was added successfully!" << endl
                         << "Task id: "
-                        << new_id
-                        << " " << endl;
+                        << new_task["id"]
+                        << endl;
 
                     return 0;
                 }
@@ -153,7 +199,7 @@ int main(int argc, char* argv[])
         usage(argv[0]);
         return -1;
     }
-    std::unordered_set<string> commands =
+    unordered_set<string> commands =
     {
         "add",
         "remove",
