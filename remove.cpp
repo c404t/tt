@@ -14,14 +14,24 @@ int main(int argc, char* argv[])
     data = json::parse(read_file);
     //cout << data << endl;
 
-    for(auto it = data["tasks"].begin(); it != data["tasks"].end(); ++it)
+    for(auto task = data["tasks"].begin(); task != data["tasks"].end(); )
     {
-        cout << it["id"] << endl;
-        if(it["id"] == argv[1])
+        if(task->contains("id") && task->at("id") == atoi(argv[1]))
         {
-            cout << "wow";
+            task = data["tasks"].erase(task);
+            cout << "wow" << endl;
+            break;
+        }
+        else
+        {
+            ++task;
         }
     }
+
+    ofstream write_file;                                                                        
+    write_file.open(path, ofstream::trunc);
+
+    write_file << data.dump(4);
 
     return 0;
 }
