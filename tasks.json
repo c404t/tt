@@ -4,15 +4,15 @@
             "created": "Sat Nov 30 13:55:49 2024",
             "description": "short description :)",
             "id": 9016,
-            "status": "todo",
-            "updated": "Sat Nov 30 16:30:27 2024"
+            "status": "wip",
+            "updated": "Mon Dec  2 10:40:40 2024"
         },
         {
             "created": "Sat Nov 30 13:55:52 2024",
             "description": "uwu",
             "id": 5747,
-            "status": "todo",
-            "updated": "Sat Nov 30 16:29:01 2024"
+            "status": "done",
+            "updated": "Mon Dec  2 10:41:05 2024"
         }
     ]
 }
