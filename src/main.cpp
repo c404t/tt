@@ -740,9 +740,6 @@ int list(int argc, char* argv[], const string path)
 
 int main(int argc, char* argv[])
 {
-    //before everything check if file exist or found
-    //if not make one and warn the user
-
     if(argc < 2)
     {
         cerr << "Error: expected more arguments." << endl;
@@ -780,7 +777,45 @@ int main(int argc, char* argv[])
             return -1;
         }
 
-        const string path = home() + "/tasktracker/tasks.json";
+        const string path = home() + "/.tasks";
+        ifstream file(path);
+        bool open = file.is_open();
+
+        if(!open)
+        {
+            ofstream file(path);
+
+            if(file)
+            {
+                try
+                {
+                    json data;
+                    data = {{"tasks", json::array()}};
+
+                    file << data.dump(4);
+                    file.close();
+
+                    cout << "created new tasks file at: " << endl
+                        << path << endl;
+
+                    return 0;
+                }
+                catch (const exception& e)
+                {
+                    cerr << "Error writting data to: "
+                        << path << endl;
+                    cerr << e.what() << endl;
+
+                    return -1;
+                }
+            }
+            else
+            {
+                cout << "could not create tasks file!" << endl
+                    << "please manually creat this path: " << endl
+                    << path << endl;
+            }
+        }
 
         time_t timestamp;
         time(&timestamp);
