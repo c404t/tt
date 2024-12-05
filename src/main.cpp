@@ -32,10 +32,12 @@ using nlohmann::json;
 void usage(char* argv)
 {
     cout << "Usage: " 
-        << "(add | remove | update) <task> " << endl
+        << "(add <task> " << endl
+        << "       (remove) <id> " << endl
+        << "       (update) <id> \"new tasks description\"" << endl
         << "       (list | listw | listd) <id> " << endl
         << "       (markd | markw) <id> " << endl
-        << "       (clear | reset) " << endl;
+        << "       (clear) " << endl;
 }
 
 string home()
@@ -591,8 +593,75 @@ int update(int argc, char* argv[], const string path, string time)
     }
 }
 
+int reset(int argc, char* argv[], const string path)
+{
+    if(argc == 2) 
+    {
+        string choice;
+        cout << "reset all the tasks? (yes/no) ";
+        cin >> choice;
+
+        if(string(choice) == "yes" ||
+                string(choice) == "Yes" ||
+                string(choice) == "y" ||
+                string(choice) == "Y")
+        {
+            cout << "resetting tasks data at: " 
+                << path << endl;
+        }
+        else
+        {
+            cout << "no changes were made since last run. " << endl;
+
+            return 0;
+        }
+
+
+        ofstream write_file;
+        write_file.open(path, ofstream::trunc);
+
+        if(write_file)
+        {
+            try
+            {
+                json data;
+                data = {{"tasks", json::array()}};
+
+                write_file << data.dump(4);
+                write_file.close();
+
+                return 0;
+            }
+            catch (const exception& e)
+            {
+                cerr << "Error writting data to: "
+                    << path << endl;
+                cerr << e.what() << endl;
+
+                return -1;
+            }
+        }
+        else
+        {
+            cerr << "Unable to open tasks data at " 
+                << path << endl;
+
+            return -1;
+        }
+    }
+    else
+    {
+        cerr << "reset takes no argument." << endl;
+
+        return -1;
+    }
+}
+
 int main(int argc, char* argv[])
 {
+    //before everything check if file exist or found
+    //if not make one and warn the user
+
     if(argc < 2)
     {
         cerr << "Error: expected more arguments." << endl;
@@ -612,12 +681,12 @@ int main(int argc, char* argv[])
         "listw",
         "listd",
 
-        "clear",
         "reset"
     };
 
     if(commands.count(argv[1]) > 0)
     {
+        std::string cmd = argv[1];
         const string path = home() + "/tasktracker/tasks.json";
 
         time_t timestamp;
@@ -625,19 +694,23 @@ int main(int argc, char* argv[])
         string time = ctime(&timestamp);
         time.pop_back();
 
-        if(string(argv[1]) == "add")
+        if(cmd == "add")
         {
             add(argc, argv, path, time);
         }
-        else if(string(argv[1]) == "remove")
+        else if(cmd == "remove")
         {
             remove(argc, argv, path);
         }
-        else if(string(argv[1]) == "update")
+        else if(cmd == "update")
         {
             update(argc, argv, path, time);
         }
-        else if(string(argv[1]) == "markd" || string(argv[1]) == "markw")
+        else if(cmd == "reset")
+        {
+            reset(argc, argv, path);
+        }
+        else if(cmd == "markd" || (argv[1]) == "markw")
         {
             markdw(argc, argv, path, time);
         }
