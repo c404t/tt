@@ -657,6 +657,87 @@ int reset(int argc, char* argv[], const string path)
     }
 }
 
+int list(int argc, char* argv[], const string path)
+{
+    if(argc == 2)
+    {
+        json data;
+        ifstream read_file;
+        read_file.open(path);
+
+        if(read_file)
+        {
+            try
+            {
+                data = json::parse(read_file); 
+            }
+            catch(const exception& e)
+            {
+                cout << "Error parsing data at: " 
+                    << path << endl;
+
+                return -1;
+            }
+        }
+        else 
+        {
+            cerr << "Unable to open tasks data at " 
+                << path << endl;
+
+            return -1;
+        }
+
+        if(string(argv[1]) == "list")
+        {
+            for(const auto& task : data["tasks"])
+            {
+                if(task.is_object() &&
+                        task.contains("id") && 
+                        task.contains("description"))
+                {
+                    cout << task.at("id") << ": " << endl;
+                    cout << task.at("description") << endl;
+                }
+            }
+        }
+        else if(string(argv[1]) == "listd")
+        {
+            for(const auto& task : data["tasks"])
+            {
+                if(task.is_object() &&
+                        task.contains("id") && 
+                        task.contains("description") &&
+                        task.at("status") == "done")
+                {
+                    cout << task.at("id") << ": " << endl;
+                    cout << task.at("description") << endl;
+                }
+            }
+        }
+        else if(string(argv[1]) == "listw")
+        {
+            for(const auto& task : data["tasks"])
+            {
+                if(task.is_object() &&
+                        task.contains("id") && 
+                        task.contains("description") &&
+                        task.at("status") == "wip")
+                {
+                    cout << task.at("id") << ": " << endl;
+                    cout << task.at("description") << endl;
+                }
+            }
+        }
+    }
+    else
+    {
+        cerr << argv[1] << " takes no arguments. " << endl;
+
+        return -1;
+    }
+    return 0;
+}
+
 int main(int argc, char* argv[])
 {
     //before everything check if file exist or found
@@ -681,12 +762,24 @@ int main(int argc, char* argv[])
         "listw",
         "listd",
 
-        "reset"
+        "reset"     //done
     };
 
     if(commands.count(argv[1]) > 0)
     {
-        std::string cmd = argv[1];
+        string cmd;
+
+        try
+        {
+            cmd = argv[1];
+        }
+        catch(const exception& e)
+        {
+            cerr << "Error: " << e.what() << endl;
+
+            return -1;
+        }
+
         const string path = home() + "/tasktracker/tasks.json";
 
         time_t timestamp;
@@ -710,9 +803,15 @@ int main(int argc, char* argv[])
         {
             reset(argc, argv, path);
         }
-        else if(cmd == "markd" || (argv[1]) == "markw")
+        else if(cmd == "markd" || cmd == "markw")
         {
             markdw(argc, argv, path, time);
+        }
+        else if(cmd == "list" ||
+                cmd == "listw" ||
+                cmd == "listd")
+        {
+            list(argc, argv, path);
         }
         else
         {}
