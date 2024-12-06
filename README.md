@@ -1,6 +1,7 @@
 # tt | tasktracker utility for linux 📝
 this is a simple task tracker written in c++<br/> 
 it uses json to store tasks in a file (.tasks) in users home directory ("$HOME")<br/>
+idea from: https://roadmap.sh/projects/task-tracker <br/>
 ![usage](gif.gif)
 
 ## Installation
