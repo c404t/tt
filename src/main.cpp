@@ -32,12 +32,12 @@ using nlohmann::json;
 void usage(char* argv)
 {
     cout << "Usage: " 
-        << "(add <task> " << endl
+        << "(add) <task> " << endl
         << "       (remove) <id> " << endl
         << "       (update) <id> \"new tasks description\"" << endl
-        << "       (list | listw | listd) <id> " << endl
+        << "       (list | listw | listd) " << endl
         << "       (markd | markw) <id> " << endl
-        << "       (clear) " << endl;
+        << "       (reset) " << endl;
 }
 
 string home()
@@ -689,19 +689,36 @@ int list(int argc, char* argv[], const string path)
 
         if(string(argv[1]) == "list")
         {
+            cout << "listing all tasks: " << endl;
+
             for(const auto& task : data["tasks"])
             {
                 if(task.is_object() &&
                         task.contains("id") && 
                         task.contains("description"))
                 {
-                    cout << task.at("id") << ": " << endl;
-                    cout << task.at("description") << endl;
+                    try
+                    {
+                        cout << task.at("id") << ": " << endl;
+                        cout << "     |    " << task.at("description") << endl;
+                        cout << "     |    " << "is ";
+                        cout << task.at("status") << endl;
+                        cout << "     |    " << "created at: ";
+                        cout << task.at("created") << endl;
+                        cout << "     |    " << "last updated at: ";
+                        cout << task.at("updated") << endl;
+                    }
+                    catch(const exception& e)
+                    {
+                        cerr << "something went wrong!" << endl;
+                    }
                 }
             }
         }
         else if(string(argv[1]) == "listd")
         {
+            cout << "listing (done) tasks: " << endl;
+
             for(const auto& task : data["tasks"])
             {
                 if(task.is_object() &&
@@ -709,13 +726,28 @@ int list(int argc, char* argv[], const string path)
                         task.contains("description") &&
                         task.at("status") == "done")
                 {
-                    cout << task.at("id") << ": " << endl;
-                    cout << task.at("description") << endl;
+                    try
+                    {
+                        cout << task.at("id") << ": " << endl;
+                        cout << "     |    " << task.at("description") << endl;
+                        cout << "     |    " << "is ";
+                        cout << task.at("status") << endl;
+                        cout << "     |    " << "created at: ";
+                        cout << task.at("created") << endl;
+                        cout << "     |    " << "last updated at: ";
+                        cout << task.at("updated") << endl;
+                    }
+                    catch(const exception& e)
+                    {
+                        cerr << "something went wrong!" << endl;
+                    }
                 }
             }
         }
         else if(string(argv[1]) == "listw")
         {
+            cout << "listing (wip) tasks: " << endl;
+
             for(const auto& task : data["tasks"])
             {
                 if(task.is_object() &&
@@ -723,8 +755,21 @@ int list(int argc, char* argv[], const string path)
                         task.contains("description") &&
                         task.at("status") == "wip")
                 {
-                    cout << task.at("id") << ": " << endl;
-                    cout << task.at("description") << endl;
+                    try
+                    {
+                        cout << task.at("id") << ": " << endl;
+                        cout << "     |    " << task.at("description") << endl;
+                        cout << "     |    " << "is ";
+                        cout << task.at("status") << endl;
+                        cout << "     |    " << "created at: ";
+                        cout << task.at("created") << endl;
+                        cout << "     |    " << "last updated at: ";
+                        cout << task.at("updated") << endl;
+                    }
+                    catch(const exception& e)
+                    {
+                        cerr << "something went wrong!" << endl;
+                    }
                 }
             }
         }
