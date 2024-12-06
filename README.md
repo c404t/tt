@@ -47,7 +47,6 @@ mark a task as done.
 ```tt reset```
 this will overwrite the tasks data with an empty task array.
 
-<br/>
 ## Possible issues/notices
 1. make sure the tasks file exists if something went wrong: <br/>
 it should be at `/home/$USER/.tasks`
@@ -55,7 +54,6 @@ it should be at `/home/$USER/.tasks`
 ```tt reset```
 3. this project uses nlohmann json library to parse and modify tasks data
 
-<br/>
 ## :)
 i made this project as a practice.<br/>
 feel free to use the codes elsewhere.<br/>
