@@ -4,7 +4,9 @@ it uses json to store tasks in a file (.tasks) in users home directory ("$HOME")
 ## Installation
 1. clone this repo and cd to the project's folder.
 2. compile `/src/main.cpp`:<br/>
-```g++ src/main.cpp -o tt```
+```
+g++ src/main.cpp -o tt
+```
 3. copy the output to ur binary folder:<br/>
 ```sudo cp tt /usr/bin```
 ## Usage
